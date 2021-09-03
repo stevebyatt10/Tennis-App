@@ -6,6 +6,7 @@
       "size" : "20x20"
     },
     {
+      "filename" : "tennisicon60x.jpg",
       "idiom" : "iphone",
       "scale" : "3x",
       "size" : "20x20"
@@ -16,6 +17,7 @@
       "size" : "29x29"
     },
     {
+      "filename" : "tennisicon87x.jpg",
       "idiom" : "iphone",
       "scale" : "3x",
       "size" : "29x29"
@@ -26,6 +28,7 @@
       "size" : "40x40"
     },
     {
+      "filename" : "tennisicon120x.jpg",
       "idiom" : "iphone",
       "scale" : "3x",
       "size" : "40x40"
@@ -36,6 +39,7 @@
       "size" : "60x60"
     },
     {
+      "filename" : "tennisicon.jpg",
       "idiom" : "iphone",
       "scale" : "3x",
       "size" : "60x60"
