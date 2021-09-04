@@ -34,8 +34,46 @@ class AppModel: ObservableObject {
 }
 
 
+class TennisAppDelegate: NSObject, UIApplicationDelegate {
+    func application(
+        _ application: UIApplication,
+        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
+    ) -> Bool {
+        // ...
+        return true
+    }
+    
+    func application(
+        _ application: UIApplication,
+        configurationForConnecting connectingSceneSession: UISceneSession,
+        options: UIScene.ConnectionOptions
+    ) -> UISceneConfiguration {
+        let sceneConfig = UISceneConfiguration(name: nil, sessionRole: connectingSceneSession.role)
+        sceneConfig.delegateClass = TennisSceneDelegate.self
+        return sceneConfig
+    }
+    
+}
+
+class TennisSceneDelegate: NSObject, UIWindowSceneDelegate {
+    func sceneWillEnterForeground(_ scene: UIScene) {
+        // ...
+    }
+    
+    func sceneDidBecomeActive(_ scene: UIScene) {
+        // ...
+    }
+    
+    func sceneWillResignActive(_ scene: UIScene) {
+        // ...
+    }
+    
+}
+
+
 @main
 struct TennisApp: App {
+    @UIApplicationDelegateAdaptor var delegate: TennisAppDelegate
     @StateObject var model = AppModel()
     var body: some Scene {
         WindowGroup {
@@ -50,12 +88,25 @@ struct TennisApp: App {
                     }
                 }
                 else {
-                    Button("Log out") {
-                        UserManager.current.logout()
+                    TabView {
+                        CompsView()
+                            .tabItem {
+                                Image(systemName: "crown")
+                                Text("Comps")
+                            }
+                        Button("Log Out") {
+                            UserManager.current.logout()
+                        }
+                            .tabItem {
+                                Image(systemName: "person")
+                                Text("Profile")
+                            }
                     }
                 }
             }
             
         }
+        
+        
     }
 }

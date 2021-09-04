@@ -19,6 +19,13 @@
 		09DFC25526DCB8550055DD50 /* TennisTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09DFC25426DCB8550055DD50 /* TennisTests.swift */; };
 		09DFC26026DCB8550055DD50 /* TennisUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09DFC25F26DCB8550055DD50 /* TennisUITests.swift */; };
 		09DFC2C926DCD7340055DD50 /* KeychainSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 09DFC2C826DCD7340055DD50 /* KeychainSwift */; };
+		09F0B84A26E1A0B8006160CB /* CompsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09F0B84926E1A0B8006160CB /* CompsView.swift */; };
+		09F0B84D26E1A3B5006160CB /* ActivityIndicator in Frameworks */ = {isa = PBXBuildFile; productRef = 09F0B84C26E1A3B5006160CB /* ActivityIndicator */; };
+		09F0B84F26E1B09D006160CB /* AlertView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09F0B84E26E1B09D006160CB /* AlertView.swift */; };
+		09F0B85126E1B21A006160CB /* CreateCompView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09F0B85026E1B21A006160CB /* CreateCompView.swift */; };
+		09F0B85326E1DDE3006160CB /* CompetitionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09F0B85226E1DDE3006160CB /* CompetitionView.swift */; };
+		09F0B85626E1F92C006160CB /* MatchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09F0B85526E1F92C006160CB /* MatchView.swift */; };
+		09F0B85A26E1FD5E006160CB /* APIExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09F0B85926E1FD5E006160CB /* APIExtensions.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -56,6 +63,12 @@
 		09DFC25B26DCB8550055DD50 /* TennisUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TennisUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		09DFC25F26DCB8550055DD50 /* TennisUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TennisUITests.swift; sourceTree = "<group>"; };
 		09DFC26126DCB8550055DD50 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		09F0B84926E1A0B8006160CB /* CompsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompsView.swift; sourceTree = "<group>"; };
+		09F0B84E26E1B09D006160CB /* AlertView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertView.swift; sourceTree = "<group>"; };
+		09F0B85026E1B21A006160CB /* CreateCompView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateCompView.swift; sourceTree = "<group>"; };
+		09F0B85226E1DDE3006160CB /* CompetitionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompetitionView.swift; sourceTree = "<group>"; };
+		09F0B85526E1F92C006160CB /* MatchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchView.swift; sourceTree = "<group>"; };
+		09F0B85926E1FD5E006160CB /* APIExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIExtensions.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,6 +76,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				09F0B84D26E1A3B5006160CB /* ActivityIndicator in Frameworks */,
 				093638B626E112FB0009FF06 /* TennisAPI in Frameworks */,
 				09DFC2C926DCD7340055DD50 /* KeychainSwift in Frameworks */,
 			);
@@ -89,6 +103,7 @@
 			isa = PBXGroup;
 			children = (
 				0936384F26DDD8F10009FF06 /* ViewExtensions.swift */,
+				09F0B85926E1FD5E006160CB /* APIExtensions.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -116,16 +131,16 @@
 		09DFC24126DCB8500055DD50 /* Tennis */ = {
 			isa = PBXGroup;
 			children = (
-				0936385526DDE63D0009FF06 /* Tennis.entitlements */,
 				0936384E26DDD8E00009FF06 /* Extensions */,
+				09F0B84626E1A029006160CB /* AuthViews */,
+				09F0B85426E1F90E006160CB /* MatchViews */,
+				09F0B84826E1A095006160CB /* CompViews */,
+				09F0B84726E1A072006160CB /* Singleton */,
 				09DFC24226DCB8500055DD50 /* TennisApp.swift */,
-				09DFC24426DCB8500055DD50 /* LoginView.swift */,
-				0936385126DDDD3F0009FF06 /* SignUpView.swift */,
 				09DFC24626DCB8550055DD50 /* Assets.xcassets */,
 				09DFC24B26DCB8550055DD50 /* Info.plist */,
 				09DFC24826DCB8550055DD50 /* Preview Content */,
-				0936385326DDE16A0009FF06 /* UserManager.swift */,
-				093638B726E113DC0009FF06 /* ViewModel.swift */,
+				0936385526DDE63D0009FF06 /* Tennis.entitlements */,
 			);
 			path = Tennis;
 			sourceTree = "<group>";
@@ -156,6 +171,43 @@
 			path = TennisUITests;
 			sourceTree = "<group>";
 		};
+		09F0B84626E1A029006160CB /* AuthViews */ = {
+			isa = PBXGroup;
+			children = (
+				09DFC24426DCB8500055DD50 /* LoginView.swift */,
+				0936385126DDDD3F0009FF06 /* SignUpView.swift */,
+			);
+			path = AuthViews;
+			sourceTree = "<group>";
+		};
+		09F0B84726E1A072006160CB /* Singleton */ = {
+			isa = PBXGroup;
+			children = (
+				0936385326DDE16A0009FF06 /* UserManager.swift */,
+				093638B726E113DC0009FF06 /* ViewModel.swift */,
+			);
+			path = Singleton;
+			sourceTree = "<group>";
+		};
+		09F0B84826E1A095006160CB /* CompViews */ = {
+			isa = PBXGroup;
+			children = (
+				09F0B84926E1A0B8006160CB /* CompsView.swift */,
+				09F0B84E26E1B09D006160CB /* AlertView.swift */,
+				09F0B85026E1B21A006160CB /* CreateCompView.swift */,
+				09F0B85226E1DDE3006160CB /* CompetitionView.swift */,
+			);
+			path = CompViews;
+			sourceTree = "<group>";
+		};
+		09F0B85426E1F90E006160CB /* MatchViews */ = {
+			isa = PBXGroup;
+			children = (
+				09F0B85526E1F92C006160CB /* MatchView.swift */,
+			);
+			path = MatchViews;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -175,6 +227,7 @@
 			packageProductDependencies = (
 				09DFC2C826DCD7340055DD50 /* KeychainSwift */,
 				093638B526E112FB0009FF06 /* TennisAPI */,
+				09F0B84C26E1A3B5006160CB /* ActivityIndicator */,
 			);
 			productName = Tennis;
 			productReference = 09DFC23F26DCB8500055DD50 /* Tennis.app */;
@@ -250,6 +303,7 @@
 			packageReferences = (
 				09DFC2C726DCD7340055DD50 /* XCRemoteSwiftPackageReference "keychain-swift" */,
 				093638B426E112FB0009FF06 /* XCRemoteSwiftPackageReference "tennis-api-swift-sdk" */,
+				09F0B84B26E1A3B5006160CB /* XCRemoteSwiftPackageReference "ActivityIndicator" */,
 			);
 			productRefGroup = 09DFC24026DCB8500055DD50 /* Products */;
 			projectDirPath = "";
@@ -293,12 +347,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				09F0B85A26E1FD5E006160CB /* APIExtensions.swift in Sources */,
+				09F0B85126E1B21A006160CB /* CreateCompView.swift in Sources */,
 				09DFC24526DCB8500055DD50 /* LoginView.swift in Sources */,
 				0936385426DDE16A0009FF06 /* UserManager.swift in Sources */,
 				09DFC24326DCB8500055DD50 /* TennisApp.swift in Sources */,
+				09F0B84A26E1A0B8006160CB /* CompsView.swift in Sources */,
 				0936385026DDD8F10009FF06 /* ViewExtensions.swift in Sources */,
+				09F0B85326E1DDE3006160CB /* CompetitionView.swift in Sources */,
+				09F0B84F26E1B09D006160CB /* AlertView.swift in Sources */,
 				093638B826E113DC0009FF06 /* ViewModel.swift in Sources */,
 				0936385226DDDD3F0009FF06 /* SignUpView.swift in Sources */,
+				09F0B85626E1F92C006160CB /* MatchView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -646,6 +706,14 @@
 				minimumVersion = 19.0.0;
 			};
 		};
+		09F0B84B26E1A3B5006160CB /* XCRemoteSwiftPackageReference "ActivityIndicator" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/duyquang91/ActivityIndicator";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.1.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -658,6 +726,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 09DFC2C726DCD7340055DD50 /* XCRemoteSwiftPackageReference "keychain-swift" */;
 			productName = KeychainSwift;
+		};
+		09F0B84C26E1A3B5006160CB /* ActivityIndicator */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 09F0B84B26E1A3B5006160CB /* XCRemoteSwiftPackageReference "ActivityIndicator" */;
+			productName = ActivityIndicator;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
