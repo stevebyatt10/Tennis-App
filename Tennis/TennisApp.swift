@@ -13,7 +13,7 @@ class AppModel: ObservableObject {
     @Published var loading = true
     
     init() {
-        TennisAPI.basePath = "http://10.0.0.32:8080"
+//        TennisAPI.basePath = "http://10.0.0.32:8080"
         let nc = NotificationCenter.default
         nc.addObserver(self, selector: #selector(didLogIn), name: Notification.Name("didLogIn"), object: nil)
         nc.addObserver(self, selector: #selector(didLogOut), name: Notification.Name("didLogOut"), object: nil)

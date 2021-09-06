@@ -694,8 +694,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/stevebyatt10/tennis-api-swift-sdk.git";
 			requirement = {
-				branch = master;
-				kind = branch;
+				kind = upToNextMajorVersion;
+				minimumVersion = "1.0.0-alpha";
 			};
 		};
 		09DFC2C726DCD7340055DD50 /* XCRemoteSwiftPackageReference "keychain-swift" */ = {

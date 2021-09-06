@@ -184,6 +184,7 @@ class NewMatchModel : ViewModel {
     @Published var matchCreated : Bool = false
     @Published var match = Match()
     @Published var score = ScoreResponse()
+    @Published var currentServer = Player()
     
     init(comp : Competition, players : [Player]) {
         self.comp = comp
@@ -211,6 +212,7 @@ class NewMatchModel : ViewModel {
                 if let match = NewMatch.match, let score = NewMatch.newIDs {
                     self.match = match
                     self.score = score
+                    self.currentServer = server
                     self.matchCreated = true
                 }
             }
@@ -218,11 +220,29 @@ class NewMatchModel : ViewModel {
         
     }
     
-    func updateScore(pointWinner : Int, fauts: Int?, lets: Int?, ace : Bool?, error : Bool?) {
+    func updateScore(pointWinner : Int, fauts: Int?, lets: Int?, ace : Bool?, error : Bool?, gameOver: @escaping () -> Void) {
         MatchesAPI.scoreMatch(id: match.matchID!, pointNum: score.pointNum!, gameID: score.gameID!, setID: score.setID!, winnerID: pointWinner, faults: fauts, lets: lets, ace: ace, unforcedError: error)
             .sink { completion in
                 self.handleAPIRequest(with: completion)
             } receiveValue: { ScoreResponse in
+                
+                // Game is over
+                if ScoreResponse.gameID == nil {
+                    print("game over")
+                    gameOver()
+                    return
+                }
+                
+                // New game, server alternates
+                if ScoreResponse.gameID != self.score.gameID {
+                    if self.currentServer.id! == self.currentPlayer.id! {
+                        self.currentServer = self.opposition
+                    }
+                    else {
+                        self.currentServer = self.currentPlayer
+                    }
+                }
+
                 self.score = ScoreResponse
             }
             .store(in: &cancellables)
@@ -232,10 +252,8 @@ class NewMatchModel : ViewModel {
 }
 
 struct NewMatch: View {
-    @Environment(\.presentationMode) var presentationMode
     
     @ObservedObject var model : NewMatchModel
-    
     
     init(comp : Competition, players : [Player]) {
         self.model = NewMatchModel(comp: comp, players: players)
@@ -252,61 +270,74 @@ struct NewMatch: View {
 
 struct MatchScoring : View {
     @ObservedObject var model : NewMatchModel
+    @Environment(\.presentationMode) var presentationMode
     
     @State var faults = 0
     @State var ace = false
     @State var error = false
     @State var lets = 0
-    @State var winnerID = -1
+    @State var winnerID : Int?
     
     
     var body: some View {
         VStack {
             Text("match id \(self.model.match.matchID!) set id \(self.model.score.setID!) game id \(self.model.score.gameID!) point id \(self.model.score.pointNum!)")
-                Stepper(value: $faults, in: 0...2) {
-                    Text("Faults \(faults)")
-                }
-                Stepper(value: $lets, in: 0...2) {
-                    Text("Lets \(lets)")
-                }
-                Toggle("Ace", isOn: $ace)
-                    .onChange(of: error) { _ in
-                        if error {
-                            ace = false
-                        }
+            
+            Text("Serving \(model.currentServer.fullName())")
+            Stepper(value: $faults, in: 0...2) {
+                Text("Faults \(faults)")
+            }
+            Stepper(value: $lets, in: 0...2) {
+                Text("Lets \(lets)")
+            }
+            Toggle("Ace", isOn: $ace)
+                .onChange(of: error) { _ in
+                    if error {
+                        ace = false
                     }
-                
-                Toggle("Error", isOn: $error)
-                    .onChange(of: ace) { _ in
-                        if ace {
-                            error = false
-                        }
+                }
+            
+            Toggle("Error", isOn: $error)
+                .onChange(of: ace) { _ in
+                    if ace {
+                        error = false
                     }
-                
-                HStack {
-                    Button(action: {winnerID = model.currentPlayer.id!}) {
+                }
+            
+            HStack {
+                Button(action: {winnerID = model.currentPlayer.id!}) {
+                    VStack {
+                        Text(model.currentPlayer.fullName())
                         Image(systemName: winnerID == model.currentPlayer.id! ? "largecircle.fill.circle" : "circle")
                     }
-                    Spacer()
-                    Text("Point Winner")
-                    Spacer()
-                    Button(action: {winnerID = model.opposition.id!}) {
+                }
+                Spacer()
+                Text("Point Winner")
+                Spacer()
+                Button(action: {winnerID = model.opposition.id!}) {
+                    VStack {
+                        Text(model.opposition.fullName())
                         Image(systemName: winnerID == model.opposition.id! ? "largecircle.fill.circle" : "circle")
                     }
-                    
                 }
-                .padding()
                 
-                
-                Button {
-                    
-                    model.updateScore(pointWinner: winnerID, fauts: faults, lets: lets, ace: ace, error: error)
-                } label: {
-                    Text("Score point")
+            }
+            .padding()
+            
+            
+            Button {
+                model.updateScore(pointWinner: winnerID!, fauts: faults, lets: lets, ace: ace, error: error) {
+                    presentationMode.wrappedValue.dismiss()
                 }
-                .disabled(winnerID < 0)
-
-                
+                error = false
+                ace = false
+                winnerID = nil
+            } label: {
+                Text("Score point")
+            }
+            .disabled(winnerID == nil)
+            
+            
             
         }
     }
@@ -361,7 +392,7 @@ struct MatchSetup : View {
                         Button(action: {currentServing.toggle()}) {
                             Image(systemName: !currentServing ? "largecircle.fill.circle" : "circle")
                         }                    }
-                        .padding()
+                    .padding()
                     
                     
                     
