@@ -45,38 +45,31 @@ struct MatchView: View {
     var body: some View {
         VStack {
             
-            HStack(alignment: .bottom) {
-                VStack {
-                    Text(model.match.winnerID! == model.match.player1!.id ? "W" : "L")
-                    Text(model.match.player1!.fullName())
-                }
-                Spacer()
-                Text("VS")
-                Spacer()
-                VStack {
-                    Text(model.match.winnerID! == model.match.player2!.id ? "W" : "L")
-                    Text(model.match.player2!.fullName())
-                }
-            }
-            .frame(height: 50)
-            .padding()
-            .background(Color("textfield"))
-            .cornerRadius(4)
-            .shadow(radius: 4, x: 0, y: 3)
+            InlineMatchTitle(match: model.match)
             
-            Text("Match stats")
-            if let duration = model.match.getMatchDuration() {
-                Text("Match duration \(duration)" )
-            }
+            Text("Statistics")
+                .font(.title2)
+                .padding()
             
-            statView(p1Stat: model.p1Stats?.aces, stat: "Aces", p2Stat: model.p2Stats?.aces)
-            statView(p1Stat: model.p1Stats?.faults, stat: "Faults", p2Stat: model.p2Stats?.faults)
-            statView(p1Stat: model.p1Stats?.doubleFaults, stat: "Double Faults", p2Stat: model.p2Stats?.doubleFaults)
-            statView(p1Stat: model.p1Stats?.errors, stat: "Unforced Errors", p2Stat: model.p2Stats?.errors)
-            statView(p1Stat: model.p1Stats?.lets, stat: "Lets", p2Stat: model.p2Stats?.lets)
+            VStack {
 
-            
+                if let duration = model.match.getMatchDuration() {
+                    Text("Match duration \(duration)" )
+                }
+                
+                statView(p1Stat: model.p1Stats?.aces, stat: "Aces", p2Stat: model.p2Stats?.aces)
+                statView(p1Stat: model.p1Stats?.faults, stat: "Faults", p2Stat: model.p2Stats?.faults)
+                statView(p1Stat: model.p1Stats?.doubleFaults, stat: "Double Faults", p2Stat: model.p2Stats?.doubleFaults)
+                statView(p1Stat: model.p1Stats?.errors, stat: "Unforced Errors", p2Stat: model.p2Stats?.errors)
+                statView(p1Stat: model.p1Stats?.lets, stat: "Lets", p2Stat: model.p2Stats?.lets)
+
+            }
+            .padding()
+            .background(Color("secondbg"))
+            .cornerRadius(8)
+            .shadow(radius: 4, x: 0, y: 3)
         }
+        .padding()
     }
     
     struct statView: View {

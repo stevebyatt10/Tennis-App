@@ -53,6 +53,13 @@ class CompViewModel : ViewModel {
             .store(in: &cancellables)
     }
     
+    func addMatchAndSort(match: Match) {
+        self.recentMatches.append(match)
+        self.recentMatches.sort { this, other in
+            return this.endDate! > other.endDate!
+        }
+    }
+    
     
     func getCompPlayers() {
         CompetitionsAPI.getCompPlayers(id: comp.id!)
@@ -78,21 +85,155 @@ struct CompetitionView: View {
     
     var body: some View {
         ScrollView {
-            VStack(spacing: 15) {
-                HStack {
-                    Text("Player")
-                        .frame(width: 120)
-                    
-                    Text("Played")
-                        .frame(width: 60)
-                    
-                    Text("Wins")
-                        .frame(width: 60)
-                    
-                    Text("Losses")
-                        .frame(width: 60)
+            NavigationLink(destination: NavigationLazyView(CompPlayers(model: model))) {
+                CompTable(model: model)
+            }
+            .buttonStyle(PlainButtonStyle())
+            
+            VStack {
+                HStack(alignment: .bottom) {
+                    Text("Recent Matches")
+                        .font(.title)
+                        .padding()
+                    Spacer()
+                    Button("view all") {
+                        
+                    }
+                    .padding()
+                }
+                
+                if model.recentMatches.isEmpty {
+                    Text("No matches yet")
+                } else {
+                    ForEach(model.recentMatches, id: \.matchID) { match in
+                        NavigationLink(destination: NavigationLazyView(MatchView(match: match))) {
+                            InlineMatchTitle(match: match)
+                        }
+                    }
+                    .padding(.horizontal)
+                }
+            }
+        }
+        .navigationBarTitle(model.comp.name ?? "", displayMode: .inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                NavigationLink {
+                    NavigationLazyView(NewMatch(comp: model.comp, players: model.players, compModel: model))
+                } label: {
+                    Label("New Match", systemImage: "plus")
+                }
+            }
+        }
+        
+    }
+    
+}
+
+
+struct CompPlayers : View {
+    
+    @ObservedObject var model : CompViewModel
+    @State var showInvites = false
+    
+    
+    var body: some View {
+        Form {
+            ForEach(model.players, id: \.id) { player in
+                Text(player.fullName())
+            }
+        }
+        .navigationBarTitle("Players", displayMode: .inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button {
+                    showInvites = true
+                } label: {
+                    Label("Invite", systemImage: "person.badge.plus")
+                }
+            }
+        }
+        .sheet(isPresented: $showInvites) {
+            InviteCompPlayers(players: model.players, compid: model.comp.id!)
+        }
+    }
+}
+
+struct InviteCompPlayers : View {
+    
+    @ObservedObject var model : InviteViewModel
+    @Environment(\.presentationMode) var presentationMode
+    @State var count = 0
+    let compID : Int
+
+    init(players : [Player], compid : Int) {
+        self.compID = compid
+        model = InviteViewModel()
+        // Filter current players in comp
+        model.getAllPlayers { player in
+            return !players.contains(player)
+        }
+    }
+    var body: some View {
+        NavigationView {
+            Form {
+                ForEach(model.players, id: \.player.id) { p in
+                    Button {
+                        if let id = p.player.id {
+                            let sel = model.toggleSelectionForPlayer(with: id)
+                            count += sel ? 1 : -1
+                        }
+                    } label: {
+                        Label(p.player.fullName(), systemImage: p.selected ? "checkmark.circle.fill" : "checkmark.circle")
+                    }
                     
                 }
+            }
+            .navigationBarTitle("Invite Players", displayMode: .inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") {
+                        presentationMode.wrappedValue.dismiss()
+                    }
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Done") {
+                        model.selectPlayers()
+                        model.invitePlayersToComp(id: compID)
+                        presentationMode.wrappedValue.dismiss()
+                    }
+                    .disabled(count == 0)
+                }
+            }
+        }
+    }
+}
+
+
+
+struct CompTable : View {
+    
+    @ObservedObject var model : CompViewModel
+    
+    var body: some View {
+        VStack(spacing: 15) {
+            HStack {
+                Text("Player")
+                    .frame(width: 120)
+                
+                Text("Played")
+                    .frame(width: 60)
+                
+                Text("Wins")
+                    .frame(width: 60)
+                
+                Text("Losses")
+                    .frame(width: 60)
+                
+            }
+            if model.competitors.isEmpty {
+                Text("No results yet")
+            }
+            else {
                 ForEach(model.competitors, id: \.player?.id) { competitor in
                     HStack {
                         Text("\(competitor.player!.firstName!) \(competitor.player!.lastName!)")
@@ -111,314 +252,38 @@ struct CompetitionView: View {
                     
                 }
             }
-            .padding(.bottom)
-            
-            
-            NavigationLink(destination: NavigationLazyView(NewMatch(comp: model.comp, players: model.players))) {
-                Text("New Match")
-                    .padding()
-            }
-            
-            
-            VStack {
-                HStack {
-                    Text("Most recent matches")
-                        .padding()
-                    Spacer()
-                    Button("view all") {
-                        
-                    }
-                    .padding()
-                }
-                
-                ForEach(model.recentMatches, id: \.matchID) { match in
-                    HStack {
-                        Text(match.getFormattedStartDate() ?? "")
-                        Spacer()
-                    }
-                    .padding()
-                    
-                    NavigationLink(destination: NavigationLazyView(MatchView(match: match))) {
-                        
-                        HStack(alignment: .bottom) {
-                            VStack {
-                                Text(match.winnerID! == match.player1!.id ? "W" : "L")
-                                Text(" \(match.player1!.firstName!) \(match.player1!.lastName!)")
-                            }
-                            Spacer()
-                            Text("VS")
-                            Spacer()
-                            VStack {
-                                Text(match.winnerID! == match.player2!.id ? "W" : "L")
-                                Text(" \(match.player2!.firstName!) \(match.player2!.lastName!)")
-                            }
-                        }
-                        .frame(height: 50)
-                        .padding()
-                        .background(Color("textfield"))
-                        .cornerRadius(4)
-                        .shadow(radius: 4, x: 0, y: 3)
-                        
-                    }
-                    .padding()
-                }
-            }
-            .padding(.top)
         }
-        .navigationBarTitle(model.comp.name ?? "", displayMode: .inline)
-        
+        .roundedBackground()
     }
 }
 
-
-
-class NewMatchModel : ViewModel {
-    
-    @Published var comp : Competition
-    
-    @Published var players = [Player]()
-    @Published var currentPlayer = Player()
-    @Published var opposition = Player()
-    @Published var playerSelected : Bool = false
-    
-    @Published var matchCreated : Bool = false
-    @Published var match = Match()
-    @Published var score = ScoreResponse()
-    @Published var currentServer = Player()
-    
-    init(comp : Competition, players : [Player]) {
-        self.comp = comp
-        super.init()
-        
-        for player in players {
-            if player.id == UserManager.current.playerId! {
-                currentPlayer = player
-                continue
-            }
-            
-            
-            self.players.append(player)
-            
-        }
-    }
-    
-    func createMatch(server : Player, receiver : Player, sets :Int, games: Int, points: Int) {
-        
-        MatchesAPI.newCompMatch(id: comp.id!, serverID: server.id!, receiverID: receiver.id!, startDate: Date(), numSets: sets, numGames: games, numPoints: points)
-            .sink { completion in
-                self.handleAPIRequest(with: completion)
-            } receiveValue: { NewMatch in
-                print(NewMatch)
-                if let match = NewMatch.match, let score = NewMatch.newIDs {
-                    self.match = match
-                    self.score = score
-                    self.currentServer = server
-                    self.matchCreated = true
-                }
-            }
-            .store(in: &cancellables)
-        
-    }
-    
-    func updateScore(pointWinner : Int, fauts: Int?, lets: Int?, ace : Bool?, error : Bool?, gameOver: @escaping () -> Void) {
-        MatchesAPI.scoreMatch(id: match.matchID!, pointNum: score.pointNum!, gameID: score.gameID!, setID: score.setID!, winnerID: pointWinner, faults: fauts, lets: lets, ace: ace, unforcedError: error)
-            .sink { completion in
-                self.handleAPIRequest(with: completion)
-            } receiveValue: { ScoreResponse in
-                
-                // Game is over
-                if ScoreResponse.gameID == nil {
-                    print("game over")
-                    gameOver()
-                    return
-                }
-                
-                // New game, server alternates
-                if ScoreResponse.gameID != self.score.gameID {
-                    if self.currentServer.id! == self.currentPlayer.id! {
-                        self.currentServer = self.opposition
-                    }
-                    else {
-                        self.currentServer = self.currentPlayer
-                    }
-                }
-
-                self.score = ScoreResponse
-            }
-            .store(in: &cancellables)
-        
-    }
-    
-}
-
-struct NewMatch: View {
-    
-    @ObservedObject var model : NewMatchModel
-    
-    init(comp : Competition, players : [Player]) {
-        self.model = NewMatchModel(comp: comp, players: players)
-    }
-    
-    var body: some View {
-        if model.matchCreated {
-            MatchScoring(model: model)
-        } else {
-            MatchSetup(model: model)
-        }
-    }
-}
-
-struct MatchScoring : View {
-    @ObservedObject var model : NewMatchModel
-    @Environment(\.presentationMode) var presentationMode
-    
-    @State var faults = 0
-    @State var ace = false
-    @State var error = false
-    @State var lets = 0
-    @State var winnerID : Int?
-    
-    
+struct InlineMatchTitle : View {
+    let match : Match
     var body: some View {
         VStack {
-            Text("match id \(self.model.match.matchID!) set id \(self.model.score.setID!) game id \(self.model.score.gameID!) point id \(self.model.score.pointNum!)")
-            
-            Text("Serving \(model.currentServer.fullName())")
-            Stepper(value: $faults, in: 0...2) {
-                Text("Faults \(faults)")
-            }
-            Stepper(value: $lets, in: 0...2) {
-                Text("Lets \(lets)")
-            }
-            Toggle("Ace", isOn: $ace)
-                .onChange(of: error) { _ in
-                    if error {
-                        ace = false
-                    }
-                }
-            
-            Toggle("Error", isOn: $error)
-                .onChange(of: ace) { _ in
-                    if ace {
-                        error = false
-                    }
-                }
-            
             HStack {
-                Button(action: {winnerID = model.currentPlayer.id!}) {
-                    VStack {
-                        Text(model.currentPlayer.fullName())
-                        Image(systemName: winnerID == model.currentPlayer.id! ? "largecircle.fill.circle" : "circle")
-                    }
-                }
+                Text(match.getFormattedStartDate() ?? "")
                 Spacer()
-                Text("Point Winner")
-                Spacer()
-                Button(action: {winnerID = model.opposition.id!}) {
-                    VStack {
-                        Text(model.opposition.fullName())
-                        Image(systemName: winnerID == model.opposition.id! ? "largecircle.fill.circle" : "circle")
-                    }
-                }
-                
             }
-            .padding()
+            .foregroundColor(.white)
             
-            
-            Button {
-                model.updateScore(pointWinner: winnerID!, fauts: faults, lets: lets, ace: ace, error: error) {
-                    presentationMode.wrappedValue.dismiss()
-                }
-                error = false
-                ace = false
-                winnerID = nil
-            } label: {
-                Text("Score point")
-            }
-            .disabled(winnerID == nil)
-            
-            
-            
-        }
-    }
-}
-
-
-struct MatchSetup : View {
-    @ObservedObject var model : NewMatchModel
-    
-    @State var currentServing : Bool = true
-    @State var sets : Int = 1
-    @State var games : Int = 3
-    @State var points : Int = 4
-    @State var tradPointName : Bool = true
-    
-    
-    var body: some View {
-        ScrollView {
-            if !model.playerSelected {
-                Text("Select Oponent")
-                    .font(.largeTitle)
-                    .padding()
-                
-                ForEach(model.players, id: \.id) { player in
-                    Button(action: {
-                        model.opposition = player
-                        model.playerSelected = true
-                    }) {
-                        Text(player.fullName())
-                            .padding()
-                    }
-                }
-            } else {
+            HStack(alignment: .center) {
                 VStack {
-                    HStack {
-                        Text(model.currentPlayer.fullName())
-                        Spacer()
-                        Text("VS")
-                        Spacer()
-                        Text(model.opposition.fullName())
-                    }
-                    .padding()
-                    
-                    
-                    HStack {
-                        Button(action: {currentServing.toggle()}) {
-                            Image(systemName: currentServing ? "largecircle.fill.circle" : "circle")
-                        }
-                        Spacer()
-                        Text("Server")
-                        Spacer()
-                        Button(action: {currentServing.toggle()}) {
-                            Image(systemName: !currentServing ? "largecircle.fill.circle" : "circle")
-                        }                    }
-                    .padding()
-                    
-                    
-                    
-                    Stepper(value: $sets, in: 1...3) {
-                        Text("\(sets) Sets")
-                    }
-                    Stepper(value: $games, in: 1...3) {
-                        Text("\(games) Games")
-                    }
-                    Stepper(value: $points, in: 1...10) {
-                        Text("\(points) Points")
-                    }
-                    
-                    Button {
-                        let server = currentServing ? self.model.currentPlayer : self.model.opposition
-                        let receiver = !currentServing ? self.model.currentPlayer : self.model.opposition
-                        self.model.createMatch(server: server, receiver: receiver, sets: sets, games: games, points: points)
-                    } label: {
-                        Text("Start Match")
-                    }
-                    
+                    Text(match.winnerID! == match.player1!.id ? "W" : "L")
+                    Text(" \(match.player1!.firstName!) \(match.player1!.lastName!)")
+                    Text("\(match.score!.player1!)")
                 }
-                .padding()
+                Spacer()
+                Text("VS")
+                Spacer()
+                VStack {
+                    Text(match.winnerID! == match.player2!.id ? "W" : "L")
+                    Text(" \(match.player2!.firstName!) \(match.player2!.lastName!)")
+                    Text("\(match.score!.player2!)")
+
+                }
             }
+            .roundedBackground()
         }
-        .navigationBarTitle("New Match", displayMode: .inline)
     }
-    
 }

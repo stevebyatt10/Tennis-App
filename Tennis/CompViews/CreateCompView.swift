@@ -19,38 +19,11 @@ struct PlayerSelect {
     }
 }
 
-class CreateCompModel : ViewModel {
+class InviteViewModel : ViewModel {
     
     @Published var players : [PlayerSelect] = []
     @Published var selectedPlayers : [Player] = []
     
-    @Published var compName = ""
-    @Published var isPrivate = false
-    
-    override init() {
-        super.init()
-        
-        getAllPlayers()
-        
-    }
-    
-    func getAllPlayers() {
-        PlayerAPI.getPlayers()
-            .trackActivity(trackingIndicator)
-            .sink { completiton in
-                self.handleAPIRequest(with: completiton)
-            } receiveValue: { res in
-                if let p = res.players {
-                    for player in p {
-                        if player.id! == UserManager.current.playerId! {
-                            continue
-                        }
-                        self.players.append(PlayerSelect(player: player))
-                    }
-                }
-            }
-            .store(in: &cancellables)
-    }
     
     func toggleSelectionForPlayer(with id: Int) -> Bool {
         var index = 0
@@ -65,15 +38,6 @@ class CreateCompModel : ViewModel {
         return players[index].selected
     }
     
-    func selectPlayers() {
-        
-        selectedPlayers = players.filter({ p in
-            return p.selected
-        }).map({ p in
-            p.player
-        })
-    }
-    
     func getSelectedCount() -> Int{
         return selectedPlayers.count
     }
@@ -85,22 +49,13 @@ class CreateCompModel : ViewModel {
         selectedPlayers.remove(atOffsets: offsets)
     }
     
-    func createCompetition() {
-        guard let id = UserManager.current.playerId else {
-            return
-        }
-        CompetitionsAPI.createComp(compName: compName, isPrivate: isPrivate, creatorId: id)
-            .trackActivity(trackingIndicator)
-            .sink { completion in
-                self.handleAPIRequest(with: completion)
-            } receiveValue: { comp in
-                if let cID = comp.id {
-                    self.invitePlayersToComp(id: cID)
-                }
-            }
-            .store(in: &cancellables)
+    func selectPlayers() {
         
-        
+        selectedPlayers = players.filter({ p in
+            return p.selected
+        }).map({ p in
+            p.player
+        })
     }
     
     func invitePlayersToComp(id : Int) {
@@ -121,11 +76,81 @@ class CreateCompModel : ViewModel {
         
     }
     
+    
+    func getAllPlayers(playerFilter: @escaping (Player) throws -> Bool) {
+        PlayerAPI.getPlayers()
+            .trackActivity(trackingIndicator)
+            .sink { completiton in
+                self.handleAPIRequest(with: completiton)
+            } receiveValue: { res in
+                if let p = res.players {
+                    do {
+                        self.players = try p.filter(playerFilter).map({ player in
+                            return PlayerSelect(player: player)
+                        })
+                    }
+                    catch {
+                        self.players = p.map({ player in
+                            return PlayerSelect(player: player)
+                        })
+                    }
+                    
+                    
+                }
+            }
+            .store(in: &cancellables)
+    }
+    
+    
+    
+}
+
+class CreateCompModel : ViewModel {
+    
+    @Published var compName = ""
+    @Published var isPrivate = false
+    
+    @ObservedObject var invModel = InviteViewModel()
+    
+    override init() {
+        super.init()
+        
+        invModel.getAllPlayers { player in
+            return player.id! != UserManager.current.playerId!
+        }
+        
+    }
+    
+    
+    func createCompetition(onCreate : @escaping (Competition) -> Void) {
+        guard let id = UserManager.current.playerId else {
+            return
+        }
+        CompetitionsAPI.createComp(compName: compName, isPrivate: isPrivate, creatorId: id)
+            .trackActivity(trackingIndicator)
+            .sink { completion in
+                self.handleAPIRequest(with: completion)
+            } receiveValue: { comp in
+                if let cID = comp.id {
+                    self.invModel.invitePlayersToComp(id: cID)
+                    onCreate(comp)
+                }
+            }
+            .store(in: &cancellables)
+        
+        
+    }
+    
+    
+    
 }
 
 struct CreateCompView: View {
     
     @StateObject var model = CreateCompModel()
+    @ObservedObject var compModel : CompsViewModel
+    
+    @Environment(\.presentationMode) var presentationMode
     
     @State var showInviteView = false
     
@@ -149,22 +174,28 @@ struct CreateCompView: View {
                         Label("Invite Players", systemImage: "person.badge.plus")
                     }
                     
-                    ForEach(model.selectedPlayers, id: \.id) { p in
+                    ForEach(model.invModel.selectedPlayers, id: \.id) { p in
                         Text(p.firstName ?? "name")
                     }
-                    .onDelete(perform: model.removeItems)
+                    .onDelete(perform: model.invModel.removeItems)
                     
                     
                 }
                 
                 Section {
                     Button("Create"){
-                        self.model.createCompetition()
+                        self.model.createCompetition() { comp in
+                            var c = comp
+                            c.playerCount = 1
+                            self.compModel.comps.append(c)
+                            self.presentationMode.wrappedValue.dismiss()
+                        }
                     }
                 }
             }
             
         }
+        .navigationBarTitle("Create", displayMode: .inline)
         .sheet(isPresented: $showInviteView) { InvitePlayersView(model: model)}
         
     }
@@ -183,10 +214,10 @@ struct InvitePlayersView: View {
         NavigationView {
             VStack {
                 Form {
-                    ForEach(model.players, id: \.player.id) { p in
+                    ForEach(model.invModel.players, id: \.player.id) { p in
                         Button {
                             if let id = p.player.id {
-                                let sel = model.toggleSelectionForPlayer(with: id)
+                                let sel = model.invModel.toggleSelectionForPlayer(with: id)
                                 count += sel ? 1 : -1
                             }
                         } label: {
@@ -205,7 +236,7 @@ struct InvitePlayersView: View {
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Done") {
-                        model.selectPlayers()
+                        model.invModel.selectPlayers()
                         presentationMode.wrappedValue.dismiss()
                     }
                     .disabled(count == startCount)
@@ -214,7 +245,7 @@ struct InvitePlayersView: View {
             
         }
         .onAppear() {
-            self.count = model.getSelectedCount()
+            self.count = model.invModel.getSelectedCount()
             self.count = startCount
         }
         
@@ -224,11 +255,4 @@ struct InvitePlayersView: View {
     
     
     
-}
-
-
-struct CreateCompView_Previews: PreviewProvider {
-    static var previews: some View {
-        CreateCompView()
-    }
 }

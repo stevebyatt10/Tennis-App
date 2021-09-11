@@ -45,7 +45,6 @@ struct AlertView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Done") {
-                        //                        model.selectPlayers()
                         presentationMode.wrappedValue.dismiss()
                     }
                 }

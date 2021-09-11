@@ -43,31 +43,14 @@ final class UserManager {
         guard let id = playerId else {
             return
         }
-        AuthAPI.logout(id: id).sink { completion in
-            switch completion {
-            case .finished:
-                print("completed")
-            case .failure(let error):
-                if let err = error as? ErrorResponse {
-                    switch err {
-                        case .error(401, _, _, _):
-                            break
-                        case .error:
-                            print(err.localizedDescription)
-                    }
-                }
-            }
-        } receiveValue: { [self] _ in
-            
-            TennisAPI.customHeaders.removeValue(forKey: "Token")
-            keychain.delete("Token")
-            keychain.delete("PlayerId")
-            nc.post(name: Notification.Name("didLogOut"), object: nil)
-            isLoggedIn = false
-        }
-        .store(in: &cancellables)
+        
+        AuthAPI.logout(id: id)
+        
+        TennisAPI.customHeaders.removeValue(forKey: "Token")
+        keychain.delete("Token")
+        keychain.delete("PlayerId")
+        nc.post(name: Notification.Name("didLogOut"), object: nil)
+        isLoggedIn = false
     }
-    
-
     
 }

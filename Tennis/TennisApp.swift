@@ -62,6 +62,7 @@ class TennisSceneDelegate: NSObject, UIWindowSceneDelegate {
     
     func sceneDidBecomeActive(_ scene: UIScene) {
         // ...
+        
     }
     
     func sceneWillResignActive(_ scene: UIScene) {
@@ -94,9 +95,7 @@ struct TennisApp: App {
                                 Image(systemName: "crown")
                                 Text("Comps")
                             }
-                        Button("Log Out") {
-                            UserManager.current.logout()
-                        }
+                       ProfileView()
                             .tabItem {
                                 Image(systemName: "person")
                                 Text("Profile")

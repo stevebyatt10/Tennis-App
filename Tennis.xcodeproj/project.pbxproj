@@ -7,11 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		091DDCA626EC2D84008E002E /* ViewModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 091DDCA526EC2D84008E002E /* ViewModifiers.swift */; };
 		0936385026DDD8F10009FF06 /* ViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0936384F26DDD8F10009FF06 /* ViewExtensions.swift */; };
 		0936385226DDDD3F0009FF06 /* SignUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0936385126DDDD3F0009FF06 /* SignUpView.swift */; };
 		0936385426DDE16A0009FF06 /* UserManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0936385326DDE16A0009FF06 /* UserManager.swift */; };
 		093638B626E112FB0009FF06 /* TennisAPI in Frameworks */ = {isa = PBXBuildFile; productRef = 093638B526E112FB0009FF06 /* TennisAPI */; };
 		093638B826E113DC0009FF06 /* ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 093638B726E113DC0009FF06 /* ViewModel.swift */; };
+		0961660D26EB143600AB2462 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0961660C26EB143600AB2462 /* ProfileView.swift */; };
+		09B5868326EA0EEE00BC8DD6 /* NewMatchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09B5868226EA0EEE00BC8DD6 /* NewMatchView.swift */; };
 		09DFC24326DCB8500055DD50 /* TennisApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09DFC24226DCB8500055DD50 /* TennisApp.swift */; };
 		09DFC24526DCB8500055DD50 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09DFC24426DCB8500055DD50 /* LoginView.swift */; };
 		09DFC24726DCB8550055DD50 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 09DFC24626DCB8550055DD50 /* Assets.xcassets */; };
@@ -46,11 +49,14 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		091DDCA526EC2D84008E002E /* ViewModifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModifiers.swift; sourceTree = "<group>"; };
 		0936384F26DDD8F10009FF06 /* ViewExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewExtensions.swift; sourceTree = "<group>"; };
 		0936385126DDDD3F0009FF06 /* SignUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpView.swift; sourceTree = "<group>"; };
 		0936385326DDE16A0009FF06 /* UserManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserManager.swift; sourceTree = "<group>"; };
 		0936385526DDE63D0009FF06 /* Tennis.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Tennis.entitlements; sourceTree = "<group>"; };
 		093638B726E113DC0009FF06 /* ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModel.swift; sourceTree = "<group>"; };
+		0961660C26EB143600AB2462 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
+		09B5868226EA0EEE00BC8DD6 /* NewMatchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewMatchView.swift; sourceTree = "<group>"; };
 		09DFC23F26DCB8500055DD50 /* Tennis.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tennis.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		09DFC24226DCB8500055DD50 /* TennisApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TennisApp.swift; sourceTree = "<group>"; };
 		09DFC24426DCB8500055DD50 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
@@ -104,8 +110,17 @@
 			children = (
 				0936384F26DDD8F10009FF06 /* ViewExtensions.swift */,
 				09F0B85926E1FD5E006160CB /* APIExtensions.swift */,
+				091DDCA526EC2D84008E002E /* ViewModifiers.swift */,
 			);
 			path = Extensions;
+			sourceTree = "<group>";
+		};
+		0961660B26EB141F00AB2462 /* ProfileViews */ = {
+			isa = PBXGroup;
+			children = (
+				0961660C26EB143600AB2462 /* ProfileView.swift */,
+			);
+			path = ProfileViews;
 			sourceTree = "<group>";
 		};
 		09DFC23626DCB8500055DD50 = {
@@ -135,6 +150,7 @@
 				09F0B84626E1A029006160CB /* AuthViews */,
 				09F0B85426E1F90E006160CB /* MatchViews */,
 				09F0B84826E1A095006160CB /* CompViews */,
+				0961660B26EB141F00AB2462 /* ProfileViews */,
 				09F0B84726E1A072006160CB /* Singleton */,
 				09DFC24226DCB8500055DD50 /* TennisApp.swift */,
 				09DFC24626DCB8550055DD50 /* Assets.xcassets */,
@@ -204,6 +220,7 @@
 			isa = PBXGroup;
 			children = (
 				09F0B85526E1F92C006160CB /* MatchView.swift */,
+				09B5868226EA0EEE00BC8DD6 /* NewMatchView.swift */,
 			);
 			path = MatchViews;
 			sourceTree = "<group>";
@@ -347,7 +364,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				091DDCA626EC2D84008E002E /* ViewModifiers.swift in Sources */,
 				09F0B85A26E1FD5E006160CB /* APIExtensions.swift in Sources */,
+				09B5868326EA0EEE00BC8DD6 /* NewMatchView.swift in Sources */,
 				09F0B85126E1B21A006160CB /* CreateCompView.swift in Sources */,
 				09DFC24526DCB8500055DD50 /* LoginView.swift in Sources */,
 				0936385426DDE16A0009FF06 /* UserManager.swift in Sources */,
@@ -358,6 +377,7 @@
 				09F0B84F26E1B09D006160CB /* AlertView.swift in Sources */,
 				093638B826E113DC0009FF06 /* ViewModel.swift in Sources */,
 				0936385226DDDD3F0009FF06 /* SignUpView.swift in Sources */,
+				0961660D26EB143600AB2462 /* ProfileView.swift in Sources */,
 				09F0B85626E1F92C006160CB /* MatchView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -533,7 +553,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.byatt.Tennis;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -560,7 +580,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.byatt.Tennis;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
@@ -695,7 +715,7 @@
 			repositoryURL = "https://github.com/stevebyatt10/tennis-api-swift-sdk.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = "1.0.0-alpha";
+				minimumVersion = 1.0.0;
 			};
 		};
 		09DFC2C726DCD7340055DD50 /* XCRemoteSwiftPackageReference "keychain-swift" */ = {

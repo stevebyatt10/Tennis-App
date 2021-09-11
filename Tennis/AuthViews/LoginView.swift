@@ -10,29 +10,33 @@ import KeychainSwift
 import Combine
 import TennisAPI
 
+
+
 class LoginModel: ViewModel {
     @Published var email = ""
     @Published var password = ""
-    @Published var loading = false
     
     func login() {
         if email.isEmpty || password.isEmpty {
             return
         }
-        loading = true
-        defer { loading = false }
         
-        AuthAPI.login(email: email, password: password).sink { completition in
-            print(completition)
-        } receiveValue: { res in
-            if let token = res.token, let id = res.playerId {
-                UserManager.current.login(token: token, id: id)
+        AuthAPI.login(email: email, password: password)
+            .trackActivity(trackingIndicator)
+            .sink { completition in
+                self.handleAPIRequest(with: completition, for: 404) { _ in
+                    self.alertMessage = "Incorrect email or password"
+                }
+            } receiveValue: { res in
+                if let token = res.token, let id = res.playerId {
+                    UserManager.current.login(token: token, id: id)
+                }
             }
-        }
-        .store(in: &cancellables)
+            .store(in: &cancellables)
         
-
+        
     }
+    
 }
 
 struct LoginView: View {
@@ -88,7 +92,7 @@ struct LoginView: View {
                     
                     
                     Button(action: model.login, label: {
-                        if model.loading {
+                        if model.isLoading {
                             ProgressView()
                         }
                         else {
@@ -96,15 +100,15 @@ struct LoginView: View {
                                 .font(.title)
                                 .padding()
                                 .foregroundColor(.white)
-                                .frame(width: UIScreen.main.bounds.width-50, height: 60)
                             
                         }
                     })
-                    .disabled(model.loading)
-                    .background(Color("button"))
-                    .cornerRadius(10)
-                    .padding()
-                    .shadow(radius: 4, x: 0, y: 3)
+                        .frame(width: UIScreen.main.bounds.width-50, height: 60)
+                        .disabled(model.isLoading)
+                        .background(Color("button"))
+                        .cornerRadius(10)
+                        .padding()
+                        .shadow(radius: 4, x: 0, y: 3)
                     
                     
                     NavigationLink(destination: SignUpView()) {
@@ -126,9 +130,8 @@ struct LoginView: View {
         }
         .navigationBarHidden(true)
         .navigationTitle("Login")
-        .onAppear() {
-            
-            
+        .alert(isPresented: $model.showAlert) {
+            Alert(title: Text(model.alertTitle), message: Text(model.alertMessage), dismissButton: .default(Text("OK")))
         }
     }
     

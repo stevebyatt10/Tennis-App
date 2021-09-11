@@ -16,7 +16,6 @@ class SignUpModel: ViewModel {
     @Published var confPassword = ""
     @Published var firstName = ""
     @Published var lastName = ""
-    @Published var loading = false
     
     
     func signUp() {
@@ -27,11 +26,12 @@ class SignUpModel: ViewModel {
             return
         }
         
-        loading = true
-        defer { loading = false }
         AuthAPI.registerPlayer(firstName: firstName, lastName: lastName, email: email, password: password)
+            .trackActivity(trackingIndicator)
             .sink { completion in
-                print(completion)
+                self.handleAPIRequest(with: completion, for: 409) { _ in
+                    self.alertMessage = "Email already in use!"
+                }
             } receiveValue: { res in
                 if let token = res.token, let id = res.playerId {
                     UserManager.current.login(token: token, id: id)
@@ -110,7 +110,7 @@ struct SignUpView: View {
                     
                     
                     Button(action: model.signUp, label: {
-                        if model.loading {
+                        if model.isLoading {
                             ProgressView()
                         }
                         else {
@@ -118,11 +118,11 @@ struct SignUpView: View {
                                 .font(.title)
                                 .padding()
                                 .foregroundColor(.white)
-                                .frame(width: UIScreen.main.bounds.width-50, height: 60)
                             
                         }
                     })
-                    .disabled(model.loading)
+                        .frame(width: UIScreen.main.bounds.width-50, height: 60)
+                    .disabled(model.isLoading)
                     .background(Color("button"))
                     .cornerRadius(10)
                     .padding()
@@ -134,9 +134,8 @@ struct SignUpView: View {
         }
         .navigationTitle("Sign Up")
         .navigationBarTitleDisplayMode(.inline)
-        .onAppear() {
-            
-            
+        .alert(isPresented: $model.showAlert) {
+            Alert(title: Text(model.alertTitle), message: Text(model.alertMessage), dismissButton: .default(Text("OK")))
         }
     }
     
