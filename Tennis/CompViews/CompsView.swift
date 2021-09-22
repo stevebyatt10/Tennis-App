@@ -20,6 +20,11 @@ class CompsViewModel: ViewModel {
         getInvites()
     }
     
+    func reload() async {
+        getPlayerComps()
+        getInvites()
+    }
+    
     func getPlayerComps(){
         guard let id  = UserManager.current.playerId else {
             return
@@ -81,7 +86,7 @@ class CompsViewModel: ViewModel {
                 self.comps.append(comp)
             }
             .store(in: &cancellables)
-
+        
     }
     
 }
@@ -91,42 +96,55 @@ struct CompsView: View {
     @StateObject var model = CompsViewModel()
     @State var showAlerts : Bool = false
     
-    
+    init() {
+        UITableView.appearance().allowsSelection = false
+        UITableViewCell.appearance().selectionStyle = .none
+    }
     
     var body: some View {
         NavigationView {
-            ScrollView {
+            VStack {
                 
                 // Add and search buttons
                 HStack {
                     NavigationLink(destination: CreateCompView(compModel: model)) {
                         Label("Create", systemImage: "plus")
                     }
+                    .buttonStyle(.bordered)
                     .padding()
                     
                     Button(action: {}) {
                         Label("Search", systemImage: "magnifyingglass")
                     }
+                    .buttonStyle(.bordered)
                     .padding()
                 }
                 
-                if model.isLoading {
-                    ProgressView()
-                }
-                
-                if model.comps.isEmpty {
-                    Text("No competitions")
-                } else {
-                    ForEach(model.comps, id: \.id) { comp in
+                List() {
+                    if model.comps.isEmpty {
+                        if model.isLoading {
+                            ProgressView()
+                        } else {
+                            Text("No competitions")
+                        }
+                    }
+                    ForEach(model.comps, id: \.id)  {comp in
                         NavigationLink(destination: NavigationLazyView(CompetitionView(comp: comp))) {
                             InlineCompTitle(comp: comp)
                         }
+                        .listRowInsets(EdgeInsets())
+                        .listRowSeparator(.hidden)
+                        .roundedBackground()
+                        .buttonStyle(.plain)
                         .padding(.horizontal)
-                        
                     }
                 }
-                Spacer()
+                .listStyle(.plain)
+                .refreshable {
+                    await model.reload()
+                }
             }
+            
             .navigationTitle("Comps")
             .toolbar {
                 Button(action: {showAlerts.toggle()}) {
@@ -135,32 +153,24 @@ struct CompsView: View {
             }
             .sheet(isPresented: $showAlerts) { AlertView(model: model) }
         }
-        
     }
+    
 }
 
 struct InlineCompTitle: View {
     let comp : Competition
     var body: some View {
         HStack(alignment: .bottom) {
-            VStack(alignment: .center) {
-                Text(comp.formatPosition())
-                    .font(.largeTitle)
-                Text("position")
-                    .font(.caption)
-            }
-            .padding(.trailing)
+            Text(comp.formatPosition())
+                .font(.largeTitle)
+                .padding(.trailing)
+                .frame(width: 80)
             
             Text(comp.name ?? "")
                 .font(.title)
-            Spacer()
-            Text("\(comp.playerCount!) Players")
+            
         }
         .frame(height: 50)
-        .padding()
-        .background(Color("secondbg"))
-        .cornerRadius(4)
-        .shadow(radius: 4, x: 0, y: 3)
     }
     
 }

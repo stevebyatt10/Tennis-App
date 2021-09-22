@@ -50,10 +50,14 @@ extension Competition {
 }
 
 extension Match {
+    private var formatter: DateFormatter {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "E d MMM h:mm a"
+        return formatter
+    }
+    
     public func getFormattedStartDate() -> String?{
         if let date = startDate {
-            let formatter = DateFormatter()
-            formatter.dateFormat = "E d MMM yyyy h:mm a"
             return formatter.string(from: date)
         }
         
@@ -62,8 +66,6 @@ extension Match {
     
     public func getFormattedEndDate() -> String?{
         if let date = endDate {
-            let formatter = DateFormatter()
-            formatter.dateFormat = "E d MMM yyyy h:mm a"
             return formatter.string(from: date)
         }
         

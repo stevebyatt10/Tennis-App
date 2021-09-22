@@ -11,8 +11,8 @@ import Combine
 
 class MatchModel : ViewModel {
     @Published var match : Match
-    @Published var p1Stats : PointStat?
-    @Published var p2Stats : PointStat?
+    @Published var p1Stats : PlayerMatchStats?
+    @Published var p2Stats : PlayerMatchStats?
     
     
     init(match : Match) {

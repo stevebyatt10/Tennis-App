@@ -27,9 +27,16 @@ class CompViewModel : ViewModel {
         getCompPlayers()
     }
     
+    func reload() {
+        getTable()
+        getRecentMatches()
+        getCompPlayers()
+    }
+    
     func getTable() {
         
         CompetitionsAPI.getCompTable(id: comp.id ?? 0)
+            .trackActivity(trackingIndicator)
             .sink { completion in
                 self.handleAPIRequest(with: completion)
             } receiveValue: { table in
@@ -42,7 +49,8 @@ class CompViewModel : ViewModel {
     
     func getRecentMatches() {
         
-        MatchesAPI.getCompMatches(id: comp.id!)
+        MatchesAPI.getCompMatches(id: comp.id!, limit: 3)
+            .trackActivity(trackingIndicator)
             .sink { completion in
                 self.handleAPIRequest(with: completion)
             } receiveValue: { MatchesResponse in
@@ -56,7 +64,8 @@ class CompViewModel : ViewModel {
     func addMatchAndSort(match: Match) {
         self.recentMatches.append(match)
         self.recentMatches.sort { this, other in
-            return this.endDate! > other.endDate!
+            
+            return this.endDate ?? Date() > other.endDate ?? Date()
         }
     }
     
@@ -96,26 +105,54 @@ struct CompetitionView: View {
                         .font(.title)
                         .padding()
                     Spacer()
-                    Button("view all") {
-                        
+                    NavigationLink(destination: NavigationLazyView( MatchList(compModel: model) ) ) {
+                       Text("view all")
                     }
                     .padding()
                 }
                 
                 if model.recentMatches.isEmpty {
-                    Text("No matches yet")
+                    if model.isLoading {
+                        ProgressView()
+                    } else {
+                        Text("No matches yet")
+                    }
                 } else {
                     ForEach(model.recentMatches, id: \.matchID) { match in
-                        NavigationLink(destination: NavigationLazyView(MatchView(match: match))) {
-                            InlineMatchTitle(match: match)
+                        if match.endDate == nil {
+                            NavigationLink(destination: NavigationLazyView(MatchScoring(match: match, compModel: model))) {
+                                InlineMatchTitle(match: match)
+                            }
+                            .padding(.horizontal)
+
+                        }
+                            
+                        else {
+                            NavigationLink(destination: NavigationLazyView(MatchView(match: match))) {
+                                InlineMatchTitle(match: match)
+                            }
+                            .padding(.horizontal)
+
                         }
                     }
-                    .padding(.horizontal)
+                    
+                    Text("Only viewing the \(model.recentMatches.count) most recent matches, tap view all to see more.")
+                        .multilineTextAlignment(.center)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .padding()
                 }
             }
         }
         .navigationBarTitle(model.comp.name ?? "", displayMode: .inline)
         .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button {
+                    model.reload()
+                } label: {
+                    Label("Refresh", systemImage: "arrow.clockwise")
+                }
+            }
             ToolbarItem(placement: .navigationBarTrailing) {
                 NavigationLink {
                     NavigationLazyView(NewMatch(comp: model.comp, players: model.players, compModel: model))
@@ -164,7 +201,7 @@ struct InviteCompPlayers : View {
     @Environment(\.presentationMode) var presentationMode
     @State var count = 0
     let compID : Int
-
+    
     init(players : [Player], compid : Int) {
         self.compID = compid
         model = InviteViewModel()
@@ -231,7 +268,12 @@ struct CompTable : View {
                 
             }
             if model.competitors.isEmpty {
-                Text("No results yet")
+                if model.isLoading {
+                    ProgressView()
+                } else {
+                    Text("No results yet")
+                }
+                
             }
             else {
                 ForEach(model.competitors, id: \.player?.id) { competitor in
@@ -262,14 +304,21 @@ struct InlineMatchTitle : View {
     var body: some View {
         VStack {
             HStack {
-                Text(match.getFormattedStartDate() ?? "")
+                if match.endDate == nil {
+                    Image(systemName: "circle")
+                        .foregroundColor(.red)
+                    Text("Live")
+                }
+                else {
+                    Text(match.getFormattedStartDate() ?? "")
+                }
                 Spacer()
             }
             .foregroundColor(.white)
             
             HStack(alignment: .center) {
                 VStack {
-                    Text(match.winnerID! == match.player1!.id ? "W" : "L")
+                    Text(WinOrLoss(player: match.player1!))
                     Text(" \(match.player1!.firstName!) \(match.player1!.lastName!)")
                     Text("\(match.score!.player1!)")
                 }
@@ -277,13 +326,23 @@ struct InlineMatchTitle : View {
                 Text("VS")
                 Spacer()
                 VStack {
-                    Text(match.winnerID! == match.player2!.id ? "W" : "L")
+                    Text(WinOrLoss(player: match.player2!))
                     Text(" \(match.player2!.firstName!) \(match.player2!.lastName!)")
                     Text("\(match.score!.player2!)")
-
+                    
                 }
             }
             .roundedBackground()
         }
+    }
+    
+    func WinOrLoss(player: Player) -> String{
+        
+        guard let winnerID = match.winnerID else {
+            return ""
+        }
+        
+        return winnerID == player.id ? "W" : "L"
+        
     }
 }

@@ -20,6 +20,6 @@ struct RoundedBackgroundModifier: ViewModifier {
             .background(Color("secondbg"))
             .cornerRadius(8)
             .shadow(radius: 4, x: 0, y: 3)
-            .padding(.vertical)
+            .padding(.vertical, 4)
     }
 }

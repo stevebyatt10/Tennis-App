@@ -24,6 +24,8 @@ class NewMatchModel : ViewModel {
     @Published var score = ScoreResponse()
     @Published var currentServer = Player()
  
+    @Published var player1Score = 0
+    @Published var player2Score = 0
     
     
     init(comp : Competition, players : [Player], compModel : CompViewModel) {
@@ -44,6 +46,23 @@ class NewMatchModel : ViewModel {
         //        }
     }
     
+    
+    func getLatestPoint() {
+        
+        MatchesAPI.getMatchLatestPoint(id: match.matchID!)
+            .sink { completion in
+                self.handleAPIRequest(with: completion)
+            } receiveValue: { ScoreResponse in
+                if ScoreResponse.newServer! == self.player1?.id! {
+                    self.currentServer = self.player1!
+                }
+                else {
+                    self.currentServer = self.player2!
+                }
+                self.score = ScoreResponse
+            }
+            .store(in: &cancellables)
+    }
     
     
     func createMatch(server : Player, receiver : Player, points: Int, winBy: Int) {
@@ -92,6 +111,33 @@ class NewMatchModel : ViewModel {
         
     }
     
+    func undoPoint(undid: @escaping (PointStats) -> Void) {
+        MatchesAPI.deleteMatchLatestPoint(id: match.matchID!).sink { completion in
+            self.handleAPIRequest(with: completion)
+        } receiveValue: { Point in
+            if Point.winnerID == self.player1?.id {
+                self.player1Score -= 1
+            }
+            else {
+                self.player2Score -= 1
+            }
+            
+            self.score.pointNum = Point.number
+            self.score.newServer = Point.serverID
+            
+            if Point.serverID == self.player1?.id! {
+                self.currentServer = self.player1!
+            }
+            else {
+                self.currentServer = self.player2!
+            }
+            
+            undid(Point.stats!)
+        }
+        .store(in: &cancellables)
+
+    }
+    
 }
 
 struct NewMatch: View {
@@ -121,9 +167,24 @@ struct MatchScoring : View {
     @State var lets = 0
     @State var winnerID : Int?
     
+    @State var toggleAlert = false
     
-    @State var player1Score = 0
-    @State var player2Score = 0
+    init(model : NewMatchModel) {
+        self.model = model
+    }
+    
+    init(match : Match, compModel: CompViewModel) {
+        self.model = NewMatchModel(comp: compModel.comp, players: [], compModel: compModel)
+        self.model.match = match
+        self.model.player1 = match.player1
+        self.model.player2 = match.player2
+        
+        self.model.player1Score = match.score!.player1!
+        self.model.player2Score = match.score!.player2!
+        
+        self.model.getLatestPoint()
+
+    }
     
     
     var body: some View {
@@ -132,7 +193,7 @@ struct MatchScoring : View {
             HStack {
                 VStack {
                     Text(model.player1!.fullName())
-                    Text("\(player1Score)")
+                    Text("\(model.player1Score)")
                     if model.currentServer.id == model.player1!.id! {
                         Label("Serving", systemImage: "largecircle.fill.circle")
                     }
@@ -143,7 +204,7 @@ struct MatchScoring : View {
                 Spacer()
                 VStack {
                     Text(model.player2!.fullName())
-                    Text("\(player2Score)")
+                    Text("\(model.player2Score)")
                     if model.currentServer.id == model.player2!.id! {
                         Label("Serving", systemImage: "largecircle.fill.circle")
                     }
@@ -240,6 +301,27 @@ struct MatchScoring : View {
             .shadow(radius: 4, x: 0, y: 3)
             
         }
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: {toggleAlert.toggle()}) {
+                    Label("Undo", systemImage: "arrowshape.turn.up.left")
+                }
+                .disabled(model.score.pointNum ?? 0 <= 1)
+            }
+            
+        }
+        .alert("Undo point", isPresented: $toggleAlert) {
+            Button("Undo", role: .destructive) {
+                model.undoPoint { stats in
+                    self.faults = stats.faults ?? 0
+                    self.error = stats.error ?? false
+                    self.lets = stats.lets ?? 0
+                    self.ace = stats.ace ?? false
+                }
+            }
+            Button("Cancel", role: .cancel) { }
+        }
+        .navigationBarBackButtonHidden(true)
         .padding()
         
     }
@@ -252,9 +334,9 @@ struct MatchScoring : View {
         lets = 0
         
         if model.player1!.id! == winnerID {
-            player1Score += 1
+            model.player1Score += 1
         } else {
-            player2Score += 1
+            model.player2Score += 1
             
         }
         
@@ -266,7 +348,7 @@ struct MatchScoring : View {
         MatchesAPI.getMatch(id: model.match.matchID!).sink { completion in
             self.model.handleAPIRequest(with: completion)
         } receiveValue: { Match in
-            self.model.compModel.addMatchAndSort(match: Match)
+            self.model.compModel.reload()
             self.presentationMode.wrappedValue.dismiss()
         }
         .store(in: &model.cancellables)
