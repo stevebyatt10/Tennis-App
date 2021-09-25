@@ -122,21 +122,32 @@ struct CompsView: View {
                 
                 List() {
                     if model.comps.isEmpty {
-                        if model.isLoading {
-                            ProgressView()
-                        } else {
-                            Text("No competitions")
-                        }
-                    }
-                    ForEach(model.comps, id: \.id)  {comp in
-                        NavigationLink(destination: NavigationLazyView(CompetitionView(comp: comp))) {
-                            InlineCompTitle(comp: comp)
+                        HStack {
+                            Spacer()
+                            if model.isLoading {
+                                ProgressView()
+                            } else {
+                                Text("No competitions")
+                            }
+                            Spacer()
                         }
                         .listRowInsets(EdgeInsets())
                         .listRowSeparator(.hidden)
-                        .roundedBackground()
-                        .buttonStyle(.plain)
-                        .padding(.horizontal)
+                        .listStyle(.plain)
+                    }
+                    else {
+                        ForEach(model.comps, id: \.id)  {comp in
+                            NavigationLink(destination: NavigationLazyView(CompetitionView(comp: comp))) {
+                                InlineCompTitle(comp: comp)
+                            }
+                            
+                            .roundedBackground()
+                            .buttonStyle(.plain)
+                            .padding(.horizontal)
+                            .listRowInsets(EdgeInsets())
+                            .listRowSeparator(.hidden)
+                            .listStyle(.plain)
+                        }
                     }
                 }
                 .listStyle(.plain)

@@ -25,7 +25,6 @@
 		095B1E7526EED36A005EB7B1 /* WatchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 095B1E7426EED36A005EB7B1 /* WatchTests.swift */; };
 		095B1E7F26EED36A005EB7B1 /* WatchUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 095B1E7E26EED36A005EB7B1 /* WatchUITests.swift */; };
 		095B1E8126EED36A005EB7B1 /* WatchUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 095B1E8026EED36A005EB7B1 /* WatchUITestsLaunchTests.swift */; };
-		095B1E8426EED36A005EB7B1 /* Watch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 095B1E4E26EED365005EB7B1 /* Watch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		0961660D26EB143600AB2462 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0961660C26EB143600AB2462 /* ProfileView.swift */; };
 		099AC76726FADB1500AA0023 /* MatchList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 099AC76626FADB1400AA0023 /* MatchList.swift */; };
 		09B5868326EA0EEE00BC8DD6 /* NewMatchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09B5868226EA0EEE00BC8DD6 /* NewMatchView.swift */; };
@@ -67,13 +66,6 @@
 			remoteGlobalIDString = 095B1E4D26EED365005EB7B1;
 			remoteInfo = Watch;
 		};
-		095B1E8226EED36A005EB7B1 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 09DFC23726DCB8500055DD50 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 095B1E4D26EED365005EB7B1;
-			remoteInfo = Watch;
-		};
 		09DFC25126DCB8550055DD50 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 09DFC23726DCB8500055DD50 /* Project object */;
@@ -97,7 +89,6 @@
 			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
 			dstSubfolderSpec = 16;
 			files = (
-				095B1E8426EED36A005EB7B1 /* Watch.app in Embed Watch Content */,
 			);
 			name = "Embed Watch Content";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -474,7 +465,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				095B1E8326EED36A005EB7B1 /* PBXTargetDependency */,
 			);
 			name = Tennis;
 			packageProductDependencies = (
@@ -730,11 +720,6 @@
 			isa = PBXTargetDependency;
 			target = 095B1E4D26EED365005EB7B1 /* Watch */;
 			targetProxy = 095B1E7B26EED36A005EB7B1 /* PBXContainerItemProxy */;
-		};
-		095B1E8326EED36A005EB7B1 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 095B1E4D26EED365005EB7B1 /* Watch */;
-			targetProxy = 095B1E8226EED36A005EB7B1 /* PBXContainerItemProxy */;
 		};
 		09DFC25226DCB8550055DD50 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -1094,6 +1079,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Tennis/Tennis.entitlements;
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_ASSET_PATHS = "\"Tennis/Preview Content\"";
 				DEVELOPMENT_TEAM = U3ZPB6U89W;
 				ENABLE_PREVIEWS = YES;
@@ -1121,6 +1107,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Tennis/Tennis.entitlements;
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_ASSET_PATHS = "\"Tennis/Preview Content\"";
 				DEVELOPMENT_TEAM = U3ZPB6U89W;
 				ENABLE_PREVIEWS = YES;

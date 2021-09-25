@@ -47,6 +47,14 @@ class CompViewModel : ViewModel {
         
     }
     
+    func deleteMatch(_ match: Match) {
+        MatchesAPI.deleteMatch(id: match.matchID!).sink { _ in
+        } receiveValue: { _ in
+            self.reload()
+        }
+        .store(in: &cancellables)
+    }
+    
     func getRecentMatches() {
         
         MatchesAPI.getCompMatches(id: comp.id!, limit: 3)
@@ -106,7 +114,7 @@ struct CompetitionView: View {
                         .padding()
                     Spacer()
                     NavigationLink(destination: NavigationLazyView( MatchList(compModel: model) ) ) {
-                       Text("view all")
+                        Text("view all")
                     }
                     .padding()
                 }
@@ -121,18 +129,18 @@ struct CompetitionView: View {
                     ForEach(model.recentMatches, id: \.matchID) { match in
                         if match.endDate == nil {
                             NavigationLink(destination: NavigationLazyView(MatchScoring(match: match, compModel: model))) {
-                                InlineMatchTitle(match: match)
+                                InlineMatchTitle(match: match, model: model)
                             }
                             .padding(.horizontal)
-
-                        }
                             
+                        }
+                        
                         else {
                             NavigationLink(destination: NavigationLazyView(MatchView(match: match))) {
-                                InlineMatchTitle(match: match)
+                                InlineMatchTitle(match: match, model: model)
                             }
                             .padding(.horizontal)
-
+                            
                         }
                     }
                     
@@ -301,6 +309,8 @@ struct CompTable : View {
 
 struct InlineMatchTitle : View {
     let match : Match
+    var model : CompViewModel? = nil
+    
     var body: some View {
         VStack {
             HStack {
@@ -334,6 +344,18 @@ struct InlineMatchTitle : View {
             }
             .roundedBackground()
         }
+        .if(UserManager.current.isAdmin) { view in
+            view.contextMenu {
+                Button(role: .destructive) {
+                    if let model = model {
+                        model.deleteMatch(match)
+                    }
+                } label: {
+                    Label("Delete", systemImage: "trash")
+                }
+            }
+        }
+        
     }
     
     func WinOrLoss(player: Player) -> String{

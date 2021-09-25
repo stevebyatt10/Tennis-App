@@ -16,6 +16,7 @@ final class UserManager {
     private let nc = NotificationCenter.default
     var isLoggedIn = false
     var playerId : Int?
+    var isAdmin = false
     
     private var cancellables = Set<AnyCancellable>()
 
@@ -49,8 +50,14 @@ final class UserManager {
         TennisAPI.customHeaders.removeValue(forKey: "Token")
         keychain.delete("Token")
         keychain.delete("PlayerId")
+        keychain.delete("Admin")
         nc.post(name: Notification.Name("didLogOut"), object: nil)
         isLoggedIn = false
+    }
+    
+    func setAdmin(player : Player) {
+        isAdmin = player.admin ?? false
+        keychain.set(isAdmin, forKey: "Admin")
     }
     
 }

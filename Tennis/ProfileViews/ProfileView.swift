@@ -24,6 +24,7 @@ class ProfileModel : ViewModel {
                 self.handleAPIRequest(with: completion)
             } receiveValue: { player in
                 self.player = player
+                UserManager.current.setAdmin(player: player)
             }
             .store(in: &cancellables)
         
